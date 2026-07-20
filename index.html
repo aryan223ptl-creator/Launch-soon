@@ -173,6 +173,24 @@ required>
 </footer>
 
 </div>
+<!-- Your website content -->
 
+<audio id="bgMusic" autoplay loop>
+  <source src="music1.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+window.addEventListener("load", () => {
+  const music = document.getElementById("bgMusic");
+  music.play().catch(() => {
+    document.addEventListener("click", () => {
+      music.play();
+    }, { once: true });
+  });
+});
+</script>
+
+</body>
+</html>
 </body>
 </html>
