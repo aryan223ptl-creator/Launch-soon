@@ -2,47 +2,119 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>NIKE DUNK LOW BLACK // DROP</title>
+  <title>Nike Dunk Low 3D Viewer</title>
   <style>
-    body { margin: 0; background: #08080c; color: #fff; font-family: 'Impact', sans-serif; overflow: hidden; }
-    #hud { position: absolute; top: 20px; left: 20px; z-index: 10; letter-spacing: 2px; }
-    #form-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; }
-    input[type="email"] { padding: 12px 20px; border-radius: 25px; border: 1px solid #333; background: #111; color: #fff; outline: none; }
-    button { padding: 12px 25px; border-radius: 25px; border: none; background: #00ffcc; color: #000; font-weight: bold; cursor: pointer; margin-left: 10px; }
+    body { margin: 0; background-color: #0b0b0f; overflow: hidden; }
+    #canvas-container { width: 100vw; height: 100vh; }
+    #loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      color: #00ffcc; font-family: sans-serif; font-size: 1.5rem; letter-spacing: 2px;
+    }
   </style>
+
+  <!-- Import maps make importing Three.js modules clean and standard -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
 
-<div id="hud">SOUND: <span id="sound-status" style="color:#ff0055">OFF</span> (Click screen to toggle)</div>
+  <div id="loading">LOADING 3D DUNK...</div>
+  <div id="canvas-container"></div>
 
-<div id="form-container">
-  <form action="https://formsubmit.co/aryan223ptl@gmail.com" method="POST">
-    <input type="email" name="email" placeholder="Enter your email" required />
-    <button type="submit">NOTIFY ME ON DROP</button>
-  </form>
-</div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-<audio id="bg-music" src="music.mp3" loop></audio>
+    // 1. Scene, Camera, and Renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.5, 4);
 
-<script>
-  const audio = document.getElementById('bg-music');
-  const status = document.getElementById('sound-status');
-  let isPlaying = false;
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-  window.addEventListener('click', () => {
-    if (!isPlaying) {
-      audio.play().then(() => {
-        isPlaying = true;
-        status.innerText = 'ON';
-        status.style.color = '#00ffcc';
-      }).catch(e => console.log('Audio autoplay blocked', e));
-    } else {
-      audio.pause();
-      isPlaying = false;
-      status.innerText = 'OFF';
-      status.style.color = '#ff0055';
+    // 2. Interactive Orbit Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // 3. Lighting (Crucial for glTF materials to show up properly)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+    dirLight.position.set(5, 10, 7.5);
+    scene.add(dirLight);
+
+    const rimLight = new THREE.DirectionalLight(0x00ffcc, 2); // Neon rim highlight
+    rimLight.position.set(-5, 2, -5);
+    scene.add(rimLight);
+
+    // 4. Load the Nike Dunk Low GLTF/GLB Model
+    let dunkMesh = null;
+    const loader = new GLTFLoader();
+
+    // Replace 'nike_dunk_low.glb' with the relative path to your file
+    loader.load(
+      'nike_dunk_low.glb',
+      (gltf) => {
+        // Success callback
+        dunkMesh = gltf.scene;
+        
+        // Center and scale model if it comes in too large or off-center
+        const box = new THREE.Box3().setFromObject(dunkMesh);
+        const center = box.getCenter(new THREE.Vector3());
+        dunkMesh.position.sub(center); // Centers the model origin
+        
+        scene.add(dunkMesh);
+
+        // Hide loading text
+        document.getElementById('loading').style.display = 'none';
+      },
+      (xhr) => {
+        // Progress callback
+        if (xhr.total > 0) {
+          const percent = Math.round((xhr.loaded / xhr.total) * 100);
+          document.getElementById('loading').innerText = `LOADING 3D DUNK... ${percent}%`;
+        }
+      },
+      (error) => {
+        // Error callback
+        console.error('An error occurred while loading the 3D model:', error);
+        document.getElementById('loading').innerText = 'ERROR LOADING MODEL';
+      }
+    );
+
+    // 5. Render Loop with Continuous Auto-Rotation
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (dunkMesh) {
+        dunkMesh.rotation.y += 0.005; // Slow ambient rotation
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
     }
-  });
-</script>
+    animate();
+
+    // 6. Handle Window Resizing
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>
