@@ -177,5 +177,57 @@ document.addEventListener("touchend", function () {
 });
 </script>
 <script type="module" src="firebase.js"></script>
+
+
+
+    <!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBWuO_POHU2BwhmfFUVOz7LDL1QG4Rj318",
+  authDomain: "hypehausstore-64d0a.firebaseapp.com",
+  projectId: "hypehausstore-64d0a",
+  storageBucket: "hypehausstore-64d0a.firebasestorage.app",
+  messagingSenderId: "750047826891",
+  appId: "1:750047826891:web:8d99ebdd47baa21b075c4e",
+  measurementId: "G-CMG5BEGMEH"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+window.googleLogin = async function () {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        alert("Welcome " + result.user.displayName);
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+window.logout = async function () {
+    await signOut(auth);
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("Logged in:", user.displayName);
+    } else {
+        console.log("No user logged in");
+    }
+});
+
+
+    <button onclick="googleLogin()">Continue with Google</button>
+</script>
 </body>
 </html>
