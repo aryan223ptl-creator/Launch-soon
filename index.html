@@ -18,12 +18,12 @@
 body{
     background:#000;
     color:#fff;
+    height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    height:100vh;
-    overflow:hidden;
     text-align:center;
+    overflow:hidden;
     position:relative;
 }
 
@@ -33,85 +33,94 @@ body::after{
     position:absolute;
     border-radius:50%;
     filter:blur(100px);
-    animation:float 8s ease-in-out infinite alternate;
 }
 
 body::before{
-    width:320px;
-    height:320px;
-    background:#ffffff12;
-    top:-80px;
-    left:-80px;
+    width:300px;
+    height:300px;
+    background:rgba(255,255,255,0.12);
+    top:-100px;
+    left:-100px;
+    animation:move1 8s infinite alternate;
 }
 
 body::after{
-    width:260px;
-    height:260px;
-    background:#ffffff08;
-    bottom:-60px;
-    right:-60px;
+    width:250px;
+    height:250px;
+    background:rgba(255,255,255,0.08);
+    bottom:-80px;
+    right:-80px;
+    animation:move2 10s infinite alternate;
 }
 
-@keyframes float{
-    from{transform:translate(0,0);}
-    to{transform:translate(80px,60px);}
+@keyframes move1{
+from{transform:translate(0,0);}
+to{transform:translate(180px,150px);}
+}
+
+@keyframes move2{
+from{transform:translate(0,0);}
+to{transform:translate(-180px,-150px);}
 }
 
 .container{
+    position:relative;
     z-index:2;
     padding:20px;
 }
 
-.logo{
-    font-size:64px;
-    font-weight:900;
+h1{
+    font-size:65px;
     letter-spacing:10px;
+    font-weight:900;
 }
 
-.tagline{
+p{
     margin-top:18px;
-    font-size:20px;
     color:#cfcfcf;
+    font-size:20px;
 }
 
 .launch{
     margin-top:12px;
     color:#888;
-    letter-spacing:4px;
+    letter-spacing:5px;
 }
 
-.instagram{
+.btn{
     display:inline-block;
-    margin-top:40px;
-    padding:16px 38px;
+    margin-top:35px;
+    padding:15px 40px;
     border:2px solid #fff;
-    border-radius:40px;
-    text-decoration:none;
     color:#fff;
-    font-weight:700;
+    text-decoration:none;
+    border-radius:40px;
     transition:.3s;
+    font-weight:bold;
 }
 
-.instagram:hover{
+.btn:hover{
     background:#fff;
     color:#000;
 }
 
 .handle{
-    margin-top:20px;
-    color:#aaa;
-    font-size:18px;
+    margin-top:18px;
+    color:#999;
+}
+
+.note{
+    margin-top:30px;
+    font-size:13px;
+    color:#666;
 }
 
 @media(max-width:768px){
-.logo{
+h1{
 font-size:42px;
 letter-spacing:5px;
 }
-.tagline{
-font-size:17px;
-}
-.handle{
+p{
 font-size:16px;
 }
 }
@@ -121,30 +130,50 @@ font-size:16px;
 <body>
 
 <div class="container">
-    <div class="logo">HYPEHAUS</div>
-    <div class="tagline">Something Huge Is Coming.</div>
+    <h1>HYPEHAUS</h1>
+    <p>Something Big Is Coming.</p>
     <div class="launch">LAUNCHING SOON</div>
 
-    <a class="instagram" href="https://instagram.com/Hypehaus.store" target="_blank">
-        Follow Us on Instagram
+    <a class="btn" href="https://instagram.com/Hypehaus.store" target="_blank">
+        Follow Us
     </a>
 
     <div class="handle">@Hypehaus.store</div>
+
+    <div class="note">
+        🎵 Double tap anywhere to Play / Pause music
+    </div>
 </div>
 
-<audio id="bgMusic" autoplay loop>
+<audio id="bgMusic" loop>
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
 <script>
 const music = document.getElementById("bgMusic");
 
-window.addEventListener("load", function () {
-    music.play().catch(function () {
-        document.body.addEventListener("click", function () {
+window.addEventListener("load", () => {
+    music.play().catch(() => {
+        document.body.addEventListener("click", () => {
             music.play();
         }, { once: true });
     });
+});
+
+let lastTap = 0;
+
+document.addEventListener("touchend", function () {
+    const currentTap = new Date().getTime();
+
+    if (currentTap - lastTap < 300 && currentTap - lastTap > 0) {
+        if (music.paused) {
+            music.play();
+        } else {
+            music.pause();
+        }
+    }
+
+    lastTap = currentTap;
 });
 </script>
 
