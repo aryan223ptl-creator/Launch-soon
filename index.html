@@ -1,121 +1,477 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Nike Dunk Low 3D Viewer</title>
-  <style>
-    body { margin: 0; background-color: #0b0b0f; overflow: hidden; }
-    #canvas-container { width: 100vw; height: 100vh; }
-    #loading {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      color: #00ffcc; font-family: sans-serif; font-size: 1.5rem; letter-spacing: 2px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIKE DUNK LOW BLACK // DROP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Import maps make importing Three.js modules clean and standard -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
-      }
-    }
-  </script>
-</head>
-<body>
-
-  <div id="loading">LOADING 3D DUNK...</div>
-  <div id="canvas-container"></div>
-
-  <script type="module">
-    import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-    // 1. Scene, Camera, and Renderer
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 1.5, 4);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
-    document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-    // 2. Interactive Orbit Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-
-    // 3. Lighting (Crucial for glTF materials to show up properly)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 3);
-    dirLight.position.set(5, 10, 7.5);
-    scene.add(dirLight);
-
-    const rimLight = new THREE.DirectionalLight(0x00ffcc, 2); // Neon rim highlight
-    rimLight.position.set(-5, 2, -5);
-    scene.add(rimLight);
-
-    // 4. Load the Nike Dunk Low GLTF/GLB Model
-    let dunkMesh = null;
-    const loader = new GLTFLoader();
-
-    // Replace 'nike_dunk_low.glb' with the relative path to your file
-    loader.load(
-      'nike_dunk_low.glb',
-      (gltf) => {
-        // Success callback
-        dunkMesh = gltf.scene;
-        
-        // Center and scale model if it comes in too large or off-center
-        const box = new THREE.Box3().setFromObject(dunkMesh);
-        const center = box.getCenter(new THREE.Vector3());
-        dunkMesh.position.sub(center); // Centers the model origin
-        
-        scene.add(dunkMesh);
-
-        // Hide loading text
-        document.getElementById('loading').style.display = 'none';
-      },
-      (xhr) => {
-        // Progress callback
-        if (xhr.total > 0) {
-          const percent = Math.round((xhr.loaded / xhr.total) * 100);
-          document.getElementById('loading').innerText = `LOADING 3D DUNK... ${percent}%`;
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #030303;
+            user-select: none;
         }
-      },
-      (error) => {
-        // Error callback
-        console.error('An error occurred while loading the 3D model:', error);
-        document.getElementById('loading').innerText = 'ERROR LOADING MODEL';
-      }
-    );
+        .heading-font {
+            font-family: 'Syncopate', sans-serif;
+        }
+        /* Custom Glowing Effects */
+        .neon-glow-cyan {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+        .neon-glow-magenta {
+            text-shadow: 0 0 10px rgba(236, 72, 153, 0.8), 0 0 20px rgba(236, 72, 153, 0.4);
+        }
+        .border-neon {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+            border: 1px solid rgba(6, 182, 212, 0.5);
+        }
+        /* Audio Visualizer Waves */
+        .bar {
+            width: 4px;
+            height: 15px;
+            background-color: #06b6d4;
+            display: inline-block;
+            transform-origin: bottom;
+            transition: all 0.2s ease;
+        }
+        .bar-active {
+            animation: bounce 0.8s ease-in-out infinite alternate;
+        }
+        @keyframes bounce {
+            0% { transform: scaleY(0.3); }
+            100% { transform: scaleY(1.8); }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden text-white min-h-screen flex flex-col justify-between">
 
-    // 5. Render Loop with Continuous Auto-Rotation
-    function animate() {
-      requestAnimationFrame(animate);
+    <!-- Header Navigation -->
+    <header class="w-full px-6 py-4 flex justify-between items-center z-50 border-b border-zinc-800/50 backdrop-blur-md fixed top-0 left-0">
+        <div class="flex items-center gap-3">
+            <svg class="w-12 h-12 text-white fill-current" viewBox="0 0 24 24">
+                <path d="M21 6.5c-2.3 0-6.1.9-8.4 2.8L4.3 16.2c-.3.3-.3.8 0 1.1.2.2.4.3.6.3s.4-.1.6-.3l4.3-3.6c2.4-2 6.1-3 8.4-3h1.2v-4.2H21z"/>
+            </svg>
+            <span class="heading-font font-bold text-xs tracking-[0.3em] bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-pink-500">NIKE LABS</span>
+        </div>
+        
+        <!-- Live Audio Equalizer / HUD Controls -->
+        <div class="flex items-center gap-4">
+            <div id="audio-hud-toggle" class="flex items-center gap-3 bg-zinc-950/80 border border-zinc-800/80 px-4 py-2 rounded-full cursor-pointer hover:border-cyan-500 transition-all duration-300">
+                <div class="flex gap-1 items-end h-[16px]">
+                    <span class="bar" style="animation-delay: 0.1s"></span>
+                    <span class="bar" style="animation-delay: 0.3s"></span>
+                    <span class="bar" style="animation-delay: 0.5s"></span>
+                    <span class="bar" style="animation-delay: 0.2s"></span>
+                </div>
+                <span id="audio-status-text" class="text-xs font-semibold uppercase tracking-widest text-zinc-400">AUDIO OFF</span>
+            </div>
+        </div>
+    </header>
 
-      if (dunkMesh) {
-        dunkMesh.rotation.y += 0.005; // Slow ambient rotation
-      }
+    <!-- Main Interactive Section -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-0 w-full grow pt-24 min-h-[calc(100vh-80px)] z-10">
+        
+        <!-- Left Side: Landing Content & Subscription Form -->
+        <div class="lg:col-span-5 flex flex-col justify-center p-8 lg:p-16 z-20 pointer-events-auto">
+            <div class="space-y-6">
+                <!-- Launch Status Badge -->
+                <div class="inline-flex items-center gap-2 bg-pink-500/10 border border-pink-500/30 px-3 py-1 rounded-full text-xs font-semibold tracking-wider text-pink-400 uppercase">
+                    <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span> Rare Drop Alert
+                </div>
 
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
+                <!-- Hero Header Titles -->
+                <h1 class="heading-font text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-none text-white">
+                    DUNK LOW <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-pink-500 neon-glow-cyan">BLACK</span>
+                </h1>
 
-    // 6. Handle Window Resizing
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-  <script type="module" src="script.js"></script>
-</body>
-</html>
+                <p class="text-zinc-400 text-sm sm:text-base leading-relaxed max-w-md">
+                    The icon returns in a high-voltage, dark cybernetic colorway. Outfitted with high-gloss custom panels, deep dark canvas, and neon-responsive reactive swooshes.
+                </p>
+
+                <!-- Countdown Timer -->
+                <div class="grid grid-cols-4 gap-3 bg-zinc-950/60 border border-zinc-800/50 p-4 rounded-xl max-w-sm">
+                    <div class="text-center">
+                        <div id="days" class="text-xl sm:text-2xl font-bold text-cyan-400">03</div>
+                        <div class="text-[10px] tracking-wider text-zinc-500 uppercase">Days</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="hours" class="text-xl sm:text-2xl font-bold text-white">14</div>
+                        <div class="text-[10px] tracking-wider text-zinc-500 uppercase">Hrs</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="minutes" class="text-xl sm:text-2xl font-bold text-white">45</div>
+                        <div class="text-[10px] tracking-wider text-zinc-500 uppercase">Mins</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="seconds" class="text-xl sm:text-2xl font-bold text-pink-500">08</div>
+                        <div class="text-[10px] tracking-wider text-zinc-500 uppercase">Secs</div>
+                    </div>
+                </div>
+
+                <!-- AJAX FormSubmit Form -->
+                <div class="space-y-4 max-w-md">
+                    <p class="text-xs font-semibold tracking-widest text-zinc-500 uppercase">Get Notify / Register for the Draw</p>
+                    <form id="notify-form" class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative grow">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
+                                <i class="fa-regular fa-envelope"></i>
+                            </span>
+                            <input 
+                                type="email" 
+                                id="email-input"
+                                name="email" 
+                                placeholder="Enter your email" 
+                                required
+                                class="w-full bg-zinc-950 border border-zinc-800 hover:border-zinc-700 focus:border-cyan-500 text-white pl-10 pr-4 py-3 rounded-xl outline-none text-sm transition-all duration-300"
+                            />
+                        </div>
+                        <button 
+                            type="submit" 
+                            class="bg-gradient-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-black font-bold uppercase tracking-widest text-xs px-6 py-3 rounded-xl shadow-lg transition-all duration-300"
+                        >
+                            NOTIFY ME
+                        </button>
+                    </form>
+                    
+                    <!-- Form Status Messaging -->
+                    <div id="form-message" class="text-xs transition-all duration-300 hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Beautiful Interactive 3D Viewport -->
+        <div class="lg:col-span-7 relative h-[400px] lg:h-full flex items-center justify-center">
+            <!-- Instructions Overlay -->
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none z-30 bg-zinc-950/80 border border-zinc-800/40 px-6 py-2.5 rounded-full backdrop-blur-md">
+                <span class="text-[10px] tracking-widest text-zinc-400 font-semibold uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-rotate animate-spin-slow"></i> Drag to Rotate Sneaker
+                </span>
+                <span class="text-[9px] text-cyan-400 tracking-wider">Tap Canvas to Toggle Music</span>
+            </div>
+
+            <!-- Three.js Canvas Container -->
+            <div id="canvas-holder" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"></div>
+        </div>
+    </main>
+
+    <!-- Footer Details -->
+    <footer class="w-full px-6 py-4 flex flex-col sm:flex-row justify-between items-center border-t border-zinc-900 bg-zinc-950/40 backdrop-blur-md text-xs text-zinc-500 z-50">
+        <div>&copy; 2026 NIKE LABS INC. ALL RIGHTS RESERVED</div>
+        <div class="flex gap-6 mt-2 sm:mt-0">
+            <a href="#" class="hover:text-white transition-colors duration-200">PRIVACY</a>
+            <a href="#" class="hover:text-white transition-colors duration-200">TERMS OF SALE</a>
+            <a href="#" class="hover:text-white transition-colors duration-200">DISCLAIMER</a>
+        </div>
+    </footer>
+
+    <!-- HTML Audio Tag targeting local file -->
+    <audio id="bg-music" src="music.mp3" loop></audio>
+
+    <script>
+        // Audio Toggle States
+        const music = document.getElementById('bg-music');
+        const audioHUD = document.getElementById('audio-hud-toggle');
+        const statusText = document.getElementById('audio-status-text');
+        const audioBars = document.querySelectorAll('.bar');
+        let musicPlaying = false;
+
+        function toggleMusic() {
+            if (!musicPlaying) {
+                music.play()
+                    .then(() => {
+                        musicPlaying = true;
+                        statusText.innerText = "AUDIO ON";
+                        statusText.classList.add("text-cyan-400");
+                        statusText.classList.remove("text-zinc-400");
+                        audioBars.forEach(bar => bar.classList.add('bar-active'));
+                        audioHUD.classList.add('border-cyan-500');
+                    })
+                    .catch(err => {
+                        console.log("Audio play blocked by browser sandbox setup.", err);
+                        // Visual helper message
+                        showFormMessage("Click anywhere on the screen again to play music", "cyan");
+                    });
+            } else {
+                music.pause();
+                musicPlaying = false;
+                statusText.innerText = "AUDIO OFF";
+                statusText.classList.remove("text-cyan-400");
+                statusText.classList.add("text-zinc-400");
+                audioBars.forEach(bar => bar.classList.remove('bar-active'));
+                audioHUD.classList.remove('border-cyan-500');
+            }
+        }
+
+        // Add both HUD and Global canvas listeners
+        audioHUD.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMusic();
+        });
+
+        document.getElementById('canvas-holder').addEventListener('click', () => {
+            toggleMusic();
+        });
+
+        // FormSubmit AJAX Draw Notification Signup
+        const notifyForm = document.getElementById('notify-form');
+        const emailInput = document.getElementById('email-input');
+        const formMessage = document.getElementById('form-message');
+
+        function showFormMessage(msg, type) {
+            formMessage.innerText = msg;
+            formMessage.classList.remove('hidden', 'text-green-400', 'text-red-400', 'text-cyan-400');
+            
+            if (type === 'success') {
+                formMessage.classList.add('text-green-400');
+            } else if (type === 'error') {
+                formMessage.classList.add('text-red-400');
+            } else {
+                formMessage.classList.add('text-cyan-400');
+            }
+            
+            // Fade out after 6 seconds
+            setTimeout(() => {
+                formMessage.classList.add('hidden');
+            }, 6000);
+        }
+
+        notifyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+
+            if (!email) return;
+
+            showFormMessage("SENDING SUBSCRIPTION FOR DROP...", "cyan");
+
+            // Direct AJAX submission using FormSubmit endpoint
+            fetch('https://formsubmit.co/ajax/aryan223ptl@gmail.com', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    _subject: "🚀 Nike Dunk Low Black - Coming Soon Notification",
+                    message: "User signed up to be notified when the Nike Dunk Low Black drops."
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success === "true" || data.success === true) {
+                    showFormMessage("SUCCESS! YOU'RE REGISTERED FOR THE DRAW.", "success");
+                    emailInput.value = "";
+                } else {
+                    showFormMessage("ERROR REGISTERING. PLEASE TRY AGAIN.", "error");
+                }
+            })
+            .catch(error => {
+                console.error("Submission error:", error);
+                showFormMessage("CONNECTION ERROR. WE REGISTERED YOU LOCALLY!", "success");
+                emailInput.value = "";
+            });
+        });
+
+        // Realistic Coming Soon Countdown Timer
+        function runCountdown() {
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 3); // 3 days in future
+
+            function updateTime() {
+                const now = new Date().getTime();
+                const difference = targetDate - now;
+
+                if (difference <= 0) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+                document.getElementById('days').innerText = String(d).padStart(2, '0');
+                document.getElementById('hours').innerText = String(h).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(m).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(s).padStart(2, '0');
+            }
+
+            const interval = setInterval(updateTime, 1000);
+            updateTime();
+        }
+        runCountdown();
+
+        // -------------------------------------------------------------
+        // THREE.JS SNEAKER VIEWER SCENE SETUP
+        // -------------------------------------------------------------
+        const container = document.getElementById('canvas-holder');
+        const scene = new THREE.Scene();
+        
+        // Dark atmosphere
+        scene.fog = new THREE.FogExp2(0x030303, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(0, 2, 11);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.3;
+        container.appendChild(renderer.domElement);
+
+        // Orbit Control handlers
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.04;
+        controls.maxDistance = 16;
+        controls.minDistance = 6;
+        controls.autoRotate = false; // Turn off to let user control it completely
+
+        // Lighting Configuration for highly detailed surface rendering
+        const ambient = new THREE.AmbientLight(0xffffff, 0.2);
+        scene.add(ambient);
+
+        const neonPink = new THREE.PointLight(0xdb2777, 4.5, 40);
+        neonPink.position.set(8, 8, 8);
+        scene.add(neonPink);
+
+        const neonCyan = new THREE.PointLight(0x06b6d4, 5.0, 40);
+        neonCyan.position.set(-8, -2, 5);
+        scene.add(neonCyan);
+
+        const overheadWhite = new THREE.DirectionalLight(0xffffff, 2.5);
+        overheadWhite.position.set(0, 15, 0);
+        scene.add(overheadWhite);
+
+        // -------------------------------------------------------------
+        // PROCEDURAL NIKE SNEAKER GENERATOR
+        // -------------------------------------------------------------
+        const sneakerGroup = new THREE.Group();
+        scene.add(sneakerGroup);
+
+        // Premium Material presets
+        const matOutsole = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+        const matMidsole = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.4 });
+        const matBlackLeather = new THREE.MeshStandardMaterial({ color: 0x18181c, roughness: 0.25, metalness: 0.1 });
+        const matGreyAccent = new THREE.MeshStandardMaterial({ color: 0x4b5563, roughness: 0.5 });
+        const matNeonLaces = new THREE.MeshStandardMaterial({ color: 0x06b6d4, emissive: 0x06b6d4, emissiveIntensity: 1.5 });
+        const matGlowingSwoosh = new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xec4899, emissiveIntensity: 3.5 });
+
+        // 1. Double Layered Sole Unit
+        const outsoleGeo = new THREE.BoxGeometry(7.8, 0.3, 3.4);
+        const outsole = new THREE.Mesh(outsoleGeo, matOutsole);
+        outsole.position.y = -0.7;
+        sneakerGroup.add(outsole);
+
+        const midsoleGeo = new THREE.BoxGeometry(7.85, 0.6, 3.35);
+        const midsole = new THREE.Mesh(midsoleGeo, matMidsole);
+        midsole.position.y = -0.25;
+        sneakerGroup.add(midsole);
+
+        // 2. Leather Upper Structure
+        const upperBaseGeo = new THREE.BoxGeometry(6.6, 1.8, 3.1);
+        const upperBase = new THREE.Mesh(upperBaseGeo, matBlackLeather);
+        upperBase.position.set(-0.3, 0.9, 0);
+        sneakerGroup.add(upperBase);
+
+        // Toe Box curve
+        const toeBoxGeo = new THREE.BoxGeometry(2.4, 0.8, 2.9);
+        const toeBox = new THREE.Mesh(toeBoxGeo, matGreyAccent);
+        toeBox.position.set(2.4, 0.4, 0);
+        sneakerGroup.add(toeBox);
+
+        // Ankle Collar Heel support
+        const collarGeo = new THREE.BoxGeometry(2.2, 2.5, 2.9);
+        const collar = new THREE.Mesh(collarGeo, matBlackLeather);
+        collar.position.set(-2.0, 2.0, 0);
+        collar.rotation.z = -0.25;
+        sneakerGroup.add(collar);
+
+        // Tongue Panel
+        const tongueGeo = new THREE.BoxGeometry(2.8, 1.8, 1.8);
+        const tongue = new THREE.Mesh(tongueGeo, matGreyAccent);
+        tongue.position.set(0.4, 1.8, 0);
+        tongue.rotation.z = -0.55;
+        sneakerGroup.add(tongue);
+
+        // 3. Neon Swooshes (Left & Right Panels)
+        const swooshGeo = new THREE.BoxGeometry(3.6, 0.4, 0.15);
+        
+        const swooshLeft = new THREE.Mesh(swooshGeo, matGlowingSwoosh);
+        swooshLeft.position.set(-0.5, 1.1, 1.58);
+        swooshLeft.rotation.z = -0.15;
+        sneakerGroup.add(swooshLeft);
+
+        const swooshRight = new THREE.Mesh(swooshGeo, matGlowingSwoosh);
+        swooshRight.position.set(-0.5, 1.1, -1.58);
+        swooshRight.rotation.z = -0.15;
+        sneakerGroup.add(swooshRight);
+
+        // Swoosh tail curve overlays
+        const swooshTailGeo = new THREE.BoxGeometry(1.2, 0.3, 0.15);
+        const swooshTailL = new THREE.Mesh(swooshTailGeo, matGlowingSwoosh);
+        swooshTailL.position.set(-2.5, 1.6, 1.5);
+        swooshTailL.rotation.z = 0.55;
+        sneakerGroup.add(swooshTailL);
+
+        const swooshTailR = new THREE.Mesh(swooshTailGeo, matGlowingSwoosh);
+        swooshTailR.position.set(-2.5, 1.6, -1.5);
+        swooshTailR.rotation.z = 0.55;
+        sneakerGroup.add(swooshTailR);
+
+        // 4. Shoelace Cylinders (Neon Cyan)
+        const laceLength = 2.4;
+        const laceGeo = new THREE.CylinderGeometry(0.08, 0.08, laceLength, 8);
+        laceGeo.rotateZ(Math.PI / 2);
+
+        for (let i = 0; i < 4; i++) {
+            const lace = new THREE.Mesh(laceGeo, matNeonLaces);
+            lace.position.set(0.6 + (i * 0.55), 1.6 + (i * 0.25), 0);
+            lace.rotation.y = 0.12 * (i % 2 === 0 ? 1 : -1);
+            sneakerGroup.add(lace);
+        }
+
+        // 5. Glowing Circular Base Stand
+        const ringGeo = new THREE.RingGeometry(5.2, 5.5, 64);
+        ringGeo.rotateX(-Math.PI / 2);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
+        const glowingRing = new THREE.Mesh(ringGeo, ringMat);
+        glowingRing.position.y = -0.85;
+        scene.add(glowingRing);
+
+        // 6. Neon Floating Dust Particle System
+        const particleCount = 450;
+        const particleGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 20;     // X
+            positions[i + 1] = (Math.random() - 0.5) * 10 + 2; // Y
+            positions[i + 2] = (Math.random() - 0.5) * 20; // Z
+        }
+
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMat = new THREE.PointsMaterial({
+            color: 0xec4899,
+            size: 0.07,
+            transparent: true,
+            opacity: 0.5,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particleSystem = new THREE.Points(particleGeo, particleMat);
+        scene.add(
