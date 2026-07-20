@@ -1,69 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>We are Launching Soon</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #121212;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            padding: 20px;
-        }
-        h1 { font-size: 2.5rem; margin-bottom: 10px; }
-        p { color: #b3b3b3; font-size: 1.1rem; }
-        .subscribe-form {
-            margin-top: 25px;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        input[type="email"] {
-            padding: 12px 15px;
-            border: none;
-            border-radius: 5px;
-            width: 65%;
-            outline: none;
-        }
-        button {
-            padding: 12px 20px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        button:hover { background-color: #0056b3; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coming Soon | 3D Experience</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      overflow: hidden;
+      background-color: #05050e;
+      color: #fff;
+    }
+
+    #webgl-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    .overlay-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      width: 90%;
+      max-width: 480px;
+      padding: 40px 30px;
+      background: rgba(15, 15, 30, 0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 242, 254, 0.2);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      letter-spacing: 4px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    p {
+      color: #a0a5c0;
+      font-size: 0.95rem;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 30px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input[type="email"]:focus {
+      border-color: #00f2fe;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    button[type="submit"] {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      border: none;
+      border-radius: 30px;
+      color: #000;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 242, 254, 0.4);
+    }
+
+    .music-btn {
+      position: fixed;
+      top: 25px;
+      right: 25px;
+      z-index: 20;
+      background: rgba(15, 15, 30, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .music-btn:hover {
+      background: rgba(0, 242, 254, 0.2);
+      border-color: #00f2fe;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Something Awesome is Coming Soon</h1>
-        <p>We are working hard to complete the site. Sign up to get notified when we launch!</p>
-        
-        <form id="subscribeForm" class="subscribe-form">
-            <input type="email" id="emailInput" placeholder="Enter your email" required />
-            <button type="submit">Notify Me</button>
-        </form>
+  <!-- Audio Element -->
+  <audio id="bg-music" loop>
+    <source src="music.mp3" type="audio/mpeg">
+    Your browser does not support audio playback.
+  </audio>
 
-        <audio id="bgMusic" loop autoplay src="music.mp3"></audio>
-    </div>
+  <!-- Audio Control Toggle -->
+  <button id="music-toggle" class="music-btn">
+    <span id="music-icon">🎵</span>
+    <span id="music-text">Play Music</span>
+  </button>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="Firebase.js"></script>
+  <!-- WebGL 3D Canvas -->
+  <div id="webgl-container"></div>
+
+  <!-- Form & Content Card -->
+  <div class="overlay-container">
+    <h1>Coming Soon</h1>
+    <p>Something extraordinary is launching soon. Subscribe now to be notified first!</p>
+
+    <!-- FormSubmit Action Target -->
+    <form action="https://formsubmit.co/aryan223ptl@gmail.com" method="POST">
+      <!-- FormSubmit Configuration Settings -->
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+
+      <div class="input-group">
+        <input type="email" name="email" placeholder="Enter your email address" required />
+      </div>
+
+      <button type="submit">Notify Me</button>
+    </form>
+  </div>
+
+  <script>
+    // --- Audio Control Logic ---
+    const music = document.getElementById('bg-music');
+    const musicBtn = document.getElementById('music-toggle');
+    const musicText = document.getElementById('music-text');
+    let isPlaying = false;
+
+    musicBtn.addEventListener('click', () => {
+      if (!isPlaying) {
+        music.play();
+        musicText.textContent = "Pause Music";
+        isPlaying = true;
+      } else {
+        music.pause();
+        musicText.textContent = "Play Music";
+        isPlaying = false;
+      }
+    });
+
+    // --- Three.js 3D Background Logic ---
+    const container = document.getElementById('webgl-container');
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 30;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    // Create 3D Torus Knot Mesh
+    const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+    const material = new THREE.MeshBasicMaterial({
+      color: 0x00f2fe,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.6
+    });
+    const torusKnot = new THREE.Mesh(geometry, material);
+    scene.add(torusKnot);
+
+    // Create Background Particle System
+    const particleGeo = new THREE.BufferGeometry();
+    const particleCount = 1000;
+    const posArray = new Float32Array(particleCount * 3);
+
+    for(let i = 0; i < particleCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 100;
+    }
+
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particleMat = new THREE.PointsMaterial({
+      size: 0.2,
+      color: 0x4facfe
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // Mouse Interaction
+    let mouseX = 0;
+    let mouseY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
+      mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
+    });
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      torusKnot.rotation.x += 0.005;
+      torusKnot.rotation.y += 0.008;
+
+      particles.rotation.y += 0.0005;
+
+      // Parallax effect on mouse move
+      torusKnot.rotation.y += mouseX * 0.05;
+      torusKnot.rotation.x += mouseY * 0.05;
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Handle Window Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>
