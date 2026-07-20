@@ -474,4 +474,47 @@
         });
 
         const particleSystem = new THREE.Points(particleGeo, particleMat);
-        scene.add(
+        scene.add(particleSystem);
+
+        // Animating Frame Logic
+        const clock = new THREE.Clock();
+
+        function animateScene() {
+            requestAnimationFrame(animateScene);
+            
+            const elapsedTime = clock.getElapsedTime();
+
+            // Hover floating movement for shoe
+            sneakerGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.18;
+            sneakerGroup.rotation.y = Math.sin(elapsedTime * 0.4) * 0.25;
+
+            // Animate cyber stand ring
+            glowingRing.scale.setScalar(1 + Math.sin(elapsedTime * 2) * 0.05);
+
+            // Animate particles drifting
+            particleSystem.rotation.y = elapsedTime * 0.03;
+            particleSystem.rotation.x = Math.sin(elapsedTime * 0.1) * 0.05;
+
+            // Interactive Light pulsing
+            neonPink.intensity = 4.5 + Math.sin(elapsedTime * 2.5) * 1.5;
+            neonCyan.intensity = 5.0 + Math.cos(elapsedTime * 3) * 1.5;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Adjust perspective on screen resize
+        window.addEventListener('resize', onWindowResize);
+
+        function onWindowResize() {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // Run render pipeline
+        animateScene();
+
+    </script>
+</body>
+</html>
